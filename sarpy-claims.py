@@ -1,6 +1,10 @@
 from bs4 import *
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from datetime import date, timedelta
+
+weekago = date.today() - timedelta(days=7)
+beginstring = str(weekago.month) + "/" + str(weekago.day) + "/" + str(weekago.year)
 
 driver = webdriver.Chrome()
 driver.get("http://www.sarpy.com/claims")

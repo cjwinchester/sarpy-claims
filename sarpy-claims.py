@@ -6,8 +6,6 @@ from datetime import date, timedelta
 today = date.today()
 weekago = today - timedelta(days=7)
 
-print weekago
-
 def num_padder(x):
     if len(str(x)) == 1:
         return "0" + str(x)
@@ -22,6 +20,7 @@ driver = webdriver.Chrome()
 driver.get("http://www.sarpy.com/claims")
 
 assert "Sarpy County" in driver.title
+
 print "Connected!"
 
 elem = driver.find_elements_by_class_name("igte_EditInContainer")

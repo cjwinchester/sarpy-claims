@@ -4,7 +4,6 @@ from selenium.webdriver.common.keys import Keys
 from datetime import date, timedelta
 
 today = date.today()
-weekago = today - timedelta(days=7)
 
 def num_padder(x):
     if len(str(x)) == 1:
@@ -12,9 +11,7 @@ def num_padder(x):
     else:
         return str(x)
         
-beginstring = num_padder(weekago.month) + "/" + num_padder(weekago.day) + "/" + str(weekago.year)
-
-endstring = num_padder(today.month) + "/" + num_padder(today.day) + "/" + str(today.year)
+datestring = num_padder(today.month) + "/" + num_padder(today.day) + "/" + str(today.year)
 
 driver = webdriver.Chrome()
 driver.get("http://www.sarpy.com/claims")
@@ -31,10 +28,10 @@ begin = elem[0]
 end = elem[1]
 
 begin.click()
-begin.send_keys(beginstring)
+begin.send_keys(datestring)
 
 end.click()
-end.send_keys(endstring)
+end.send_keys(datestring)
 
 driver.find_element_by_id("MainContent_btnFinish__3").click()
 
@@ -43,25 +40,30 @@ soup = BeautifulSoup(page)
 
 driver.close()
 
-f = open('sarpy_claims.txt', 'ab')
+f = open('sarpy_claims.txt', 'wb')
 
 table = soup.findAll('table')[10]
 
 counter = 1
 
+amount = []
+
 for row in table.findAll('tr'):
     col = row.findAll('td')
-    date = col[0].string.strip()
+    date = col[0].string.strip().split("/")
+    newdate = date[2] + '-' + num_padder(date[0]) + "-" + num_padder(date[1])
     dept = col[1].string.strip()
     payee = col[2].string.strip()
     print payee
-    amt = col[3].string.strip().replace('$','')
+    amt = col[3].string.strip().replace('$','').replace(',', '')
+    amount.append(float(amt))
     descrip = col[4].string.strip()
-    rec = (date, dept, payee, amt, descrip)
+    rec = ('',newdate, 'Sarpy County', dept, payee, descrip, amt, '','','')
     f.write("|".join(rec) + "\n")
     counter += 1
 
-print str(counter) + ' new Sarpy claims this week ...'
+total = sum(amount)
+print str(counter - 1) + ' new Sarpy claims worth $' + str("{:,}".format(total))
     
 f.flush()
 f.close()
